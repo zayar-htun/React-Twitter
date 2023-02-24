@@ -42,7 +42,7 @@ export default function MainDrawer({toggleDrawer,drawerState}) {
       <List>
         
           <ListItem disablePadding>
-            <ListItemButton>
+            <ListItemButton onClick={()=>{navigate('/login')}}>
               <ListItemIcon><LoginIcon/></ListItemIcon>
               <ListItemText primary='Login' />
             </ListItemButton>
