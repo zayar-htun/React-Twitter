@@ -1,7 +1,13 @@
+import { useContext } from "react";
+import { AuthContext } from "./AuthProvider";
+
 export default function Home(){
+    const {auth,setAuth,authUser,setAuthUser} = useContext(AuthContext);
     return(
         <div>
-            <h1>Hello World</h1>
+            {
+                auth ? authUser.name : 'guest User'
+            }
         </div>
     )
 }
