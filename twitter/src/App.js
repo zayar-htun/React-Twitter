@@ -64,7 +64,7 @@ export default function App() {
                 <Route path="/" element={<Home tweets={tweets} />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/login" element={<Login />} />
-                <Route path="/profile" element={<Profile />} />
+                <Route path="/@/:handle" element={<Profile />} />
                 <Route path="/edit" element={<Edit />} />
                 <Route path="/add" element={<Add addTweet={addTweet}/>}/>
             </Routes>

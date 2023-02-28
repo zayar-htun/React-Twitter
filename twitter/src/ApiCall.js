@@ -97,3 +97,12 @@ export async function postTweet(body){
     const result = await res.json();
     return result
 }
+
+export async function getUser(handle){
+    const res = await fetch(`${api}/users/${handle}`);
+    if(!res.ok){
+        return false
+    }
+    const result = await res.json();
+    return result;
+}

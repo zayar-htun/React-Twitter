@@ -8,11 +8,22 @@ import Typography from "@mui/material/Typography";
 import { Container } from "@mui/material";
 import { Box } from "@mui/system";
 import { AuthContext } from "./AuthProvider";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { getUser } from "./ApiCall";
 
 export default function Profile() {
-    const { auth, setAuth, authUser, setAuthUser } = React.useContext(AuthContext);
+    const { auth, setAuth, authUser, setAuthUser } =
+        React.useContext(AuthContext);
     const navigate = useNavigate();
+    const { handle } = useParams();
+    const [user, setUser] = React.useState(authUser);
+
+    React.useEffect(() => {
+        (async () => {
+            const update = await getUser(handle);
+            if (update) setUser(update);
+        })();
+    });
     return (
         <Container maxWidth="sm" sx={{ mt: 4 }}>
             <Card sx={{ maxWidth: 345 }}>
@@ -21,41 +32,54 @@ export default function Profile() {
                     title="green iguana"
                 />
                 <CardContent>
-                    <Box sx={{display:'flex', justifyContent:'space-between',alignItems:'center'}}>
+                    <Box
+                        sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                        }}
+                    >
                         <Box>
                             <Typography
                                 gutterBottom
                                 variant="h5"
                                 component="div"
-                                sx={{display:'inline'}}
+                                sx={{ display: "inline" }}
                             >
-                                {authUser.name}
-                                
+                                {user.name}
                             </Typography>
                             <Typography
                                 gutterBottom
                                 variant="h8"
                                 component="div"
-                                sx={{display:'inline'}}
+                                sx={{ display: "inline" }}
                             >
-                                 @{authUser.handle}
-                                
+                                @{user.handle}
                             </Typography>
                         </Box>
                         <Box>
-                            <CardActions  onClick={()=>{
-                                    navigate('/edit')
-                                }}>
-                                <Button size="small">Edit</Button>
-                                <Button onClick={()=>{
-                                    console.log(authUser);
-                                }}>Show</Button>
-                            </CardActions>
+                            {user._id === authUser._id ? (
+                                <CardActions
+                                    onClick={() => {
+                                        navigate("/edit");
+                                    }}
+                                >
+                                    <Button size="small">Edit</Button>
+                                </CardActions>
+                            ) : (
+                                <CardActions
+                                    onClick={() => {
+                                        navigate("/edit");
+                                    }}
+                                >
+                                    <Button size="small">Follow</Button>
+                                </CardActions>
+                            )}
                         </Box>
                     </Box>
 
                     <Typography variant="body2" color="text.secondary">
-                        {authUser.profile}
+                        {user.profile}
                     </Typography>
                 </CardContent>
             </Card>

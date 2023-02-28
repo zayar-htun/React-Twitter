@@ -232,6 +232,38 @@ app.post('/tweet',auth,async(req,res)=>{
 	}
 })
 
+app.get('/users/:handle',async(req,res)=>{
+	const {handle} = req.params;
+	const user = await db.collection('users').aggregate([
+		{
+			$match : {handle}
+		},
+		{
+			$lookup : {
+				from : 'users',
+				foreignField : '_id',
+				localField : 'followers',
+				as : 'followers_users'
+			}
+		},
+		{
+			$lookup: {
+				from: "users",
+				localField: "following",
+				foreignField: "_id",
+				as: "following_users",
+			},
+		},
+	]).toArray();
+
+	if(user){
+		return res.json(user[0])
+	}
+	else {
+		return res.status(500).json(user);
+	}
+})
+
 app.listen(8000, () => {
   console.log("Api running at 8000");
 });

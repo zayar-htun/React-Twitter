@@ -15,8 +15,10 @@ import {
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import CommentIcon from "@mui/icons-material/Comment";
 import { AuthContext } from "./AuthProvider";
+import { useNavigate } from "react-router-dom";
 
 export default function Home({ tweets }) {
+    const navigate = useNavigate();
     const {authUser} = React.useContext(AuthContext);
     return (
         <Box sx={{ my: 3, mx: { lg: 20, md: 5, sm: 5, xs: 3 } }}>
@@ -43,6 +45,9 @@ export default function Home({ tweets }) {
                                             display: "flex",
                                             justifyContent: "flex-start",
                                             flexWrap: "wrap",
+                                        }}
+                                        onClick={()=>{
+                                            navigate(`/@/${tweet.owner_user[0].handle}`)
                                         }}
                                     >
                                         <Typography
