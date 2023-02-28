@@ -29,7 +29,9 @@ export default function MainDrawer({ toggleDrawer, drawerState }) {
         >
             <Box sx={{ height: 250, bgcolor: "grey" }}></Box>
             {auth ? (
+                
                 <List>
+                    {authUser.name}@{authUser.handle}
                   <ListItem disablePadding>
                     <ListItemButton
                         onClick={() => {

@@ -125,6 +125,113 @@ app.put('/users/:id',auth,async(req,res)=>{
   res.sendStatus(500);
 })
 
+app.get("/tweets", async (req, res) => {
+	try {
+		const tweets = await db
+			.collection("tweets")
+			.aggregate([
+				{
+					$match: {
+						type: "post",
+					},
+				},
+				{
+					$sort: {
+						created: -1,
+					},
+				},
+				{ $limit: 20 },
+				{
+					$lookup: {
+						from: "users",
+						localField: "owner",
+						foreignField: "_id",
+						as: "owner_user",
+					},
+				},
+				{
+					$lookup: {
+						from: "users",
+						localField: "likes",
+						foreignField: "_id",
+						as: "likes_users",
+					},
+				},
+				{
+					$lookup: {
+						from: "tweets",
+						localField: "_id",
+						foreignField: "origin",
+						as: "comments",
+						pipeline: [
+							{
+								$lookup: {
+									from: "users",
+									localField: "owner",
+									foreignField: "_id",
+									as: "owner_user",
+								},
+							},
+							{
+								$lookup: {
+									from: "tweets",
+									localField: "_id",
+									foreignField: "origin",
+									as: "comments",
+								},
+							},
+						],
+					},
+				},
+			])
+			.toArray();
+
+		res.json(tweets);
+	} catch (e) {
+		res.sendStatus(500);
+	}
+});
+
+app.post('/tweet',auth,async(req,res)=>{
+	const user = res.locals.user;
+	const {body} = req.body;
+
+	if(!body){
+		return res.status(403).json({msg:'Body require to upload!!!'})
+	}
+	const result = await db.collection('tweets').insertOne({
+		type:'post',
+		body,
+		owner: ObjectId(user._id),
+		created : new Date(),
+		likes : []
+	});
+
+	if(result.insertedId){
+		const tweet = await db.collection('tweets').aggregate([
+			{
+				$match : {_id : ObjectId(result.insertedId)}
+			},
+			{
+				$lookup : {
+					from : 'users',
+					foreignField : '_id',
+					localField : 'owner',
+					as : 'owner_user'
+				}
+			}
+		]).toArray();
+
+		let data = tweet[0];
+		data.comments = [];
+
+		return res.json(data);
+	}
+	else {
+		return res.sendStatus(500).json(result);
+	}
+})
+
 app.listen(8000, () => {
   console.log("Api running at 8000");
 });

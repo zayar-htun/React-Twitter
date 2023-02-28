@@ -67,3 +67,33 @@ export async function editProfile(id,name,profile,password){
     const user = await res.json();
     return user;
 }
+
+export async function getTweets(){
+    const res = await fetch('http://localhost:8000/tweets');
+    if(!res.ok){
+        return false
+    }
+    const tweets = await res.json();
+    return tweets;
+}
+
+
+export async function postTweet(body){
+    const token = getToken();
+    if(!token){
+        return false;
+    }
+    const res = await fetch('http://localhost:8000/tweet',{
+        method :'POST',
+        headers : {
+            'authorization':`Bearer ${token}`,'Content-Type':'application/json'
+        },
+        body : JSON.stringify({body})
+    })
+
+    if(!res.ok){
+        return false
+    }
+    const result = await res.json();
+    return result
+}
