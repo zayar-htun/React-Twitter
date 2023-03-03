@@ -106,3 +106,29 @@ export async function getUser(handle){
     const result = await res.json();
     return result;
 }
+
+export async function getTweet(id){
+    const res = await fetch(`http://localhost:8000/tweets/${id}`);
+    if(!res.ok){
+        return false
+    }
+    const result = await res.json();
+    return result;
+}
+
+export async function postComment(body,origin){
+    const token = getToken();
+    if(!token){
+        return false
+    }
+    const res = await fetch('http://localhost:8000/comment',{
+        method : "POST",
+        headers : {'authorization':`Bearer ${token}`,'Content-Type':'application/json'},
+        body : JSON.stringify({body,origin})
+    })
+    if(!res.ok){
+        return false
+    }
+    const tweet  = await res.json();
+    return tweet
+}

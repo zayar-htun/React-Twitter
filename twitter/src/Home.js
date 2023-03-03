@@ -13,13 +13,14 @@ import {
     IconButton,
 } from "@mui/material";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import { Favorite as FavoriteIcon } from "@mui/icons-material";
 import CommentIcon from "@mui/icons-material/Comment";
 import { AuthContext } from "./AuthProvider";
 import { useNavigate } from "react-router-dom";
 
-export default function Home({ tweets }) {
+export default function Home({ tweets, toggleLike }) {
     const navigate = useNavigate();
-    const {authUser} = React.useContext(AuthContext);
+    const { authUser } = React.useContext(AuthContext);
     return (
         <Box sx={{ my: 3, mx: { lg: 20, md: 5, sm: 5, xs: 3 } }}>
             {tweets.map(tweet => {
@@ -46,8 +47,10 @@ export default function Home({ tweets }) {
                                             justifyContent: "flex-start",
                                             flexWrap: "wrap",
                                         }}
-                                        onClick={()=>{
-                                            navigate(`/@/${tweet.owner_user[0].handle}`)
+                                        onClick={() => {
+                                            navigate(
+                                                `/@/${tweet.owner_user[0].handle}`
+                                            );
                                         }}
                                     >
                                         <Typography
@@ -80,14 +83,18 @@ export default function Home({ tweets }) {
                                 {tweet.owner_user[0].created}
                             </Typography>
                         </CardContent>
-                        <Typography
-                            sx={{
-                                fontSize: "1.2em",
-                                ml: 5,
-                            }}
-                        >
-                            {tweet.body}
-                        </Typography>
+                        <CardActionArea onClick={()=>{
+                            navigate(`tweet/${tweet._id}`)
+                        }}>
+                            <Typography
+                                sx={{
+                                    fontSize: "1.2em",
+                                    ml: 5,
+                                }}
+                            >
+                                {tweet.body}
+                            </Typography>
+                        </CardActionArea>
 
                         <Divider />
                         <Box
@@ -97,16 +104,32 @@ export default function Home({ tweets }) {
                             }}
                         >
                             <ButtonGroup>
-                                <IconButton>
-                                    <FavoriteBorderIcon sx={{ color: "red" }} />
+                                <IconButton
+                                    onClick={() => {
+                                        toggleLike(tweet._id);
+                                    }}
+                                >
+                                    {tweet.likes.find(
+                                        n => n === authUser._id
+                                    ) ? (
+                                        <FavoriteIcon sx={{ color: "red" }} />
+                                    ) : (
+                                        <FavoriteBorderIcon
+                                            sx={{ color: "red" }}
+                                        />
+                                    )}
                                 </IconButton>
-                                <Button variant="clear">{tweet.likes.length}</Button>
+                                <Button variant="clear">
+                                    {tweet.likes.length}
+                                </Button>
                             </ButtonGroup>
                             <ButtonGroup>
                                 <IconButton>
                                     <CommentIcon sx={{ color: "green" }} />
                                 </IconButton>
-                                <Button variant="clear">{tweet.comments.length}</Button>
+                                <Button variant="clear">
+                                    {tweet.comments.length}
+                                </Button>
                             </ButtonGroup>
                         </Box>
                     </Card>

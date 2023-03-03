@@ -264,6 +264,92 @@ app.get('/users/:handle',async(req,res)=>{
 	}
 })
 
+app.get('/tweets/:id',async(req,res)=>{
+	const {id} = req.params;
+	try{
+		const result = await db.collection('tweets').aggregate([
+			{
+				$match : {_id : ObjectId(id)}
+			},
+			{
+				$lookup : {
+					from : 'users',
+					foreignField : '_id',
+					localField : 'owner',
+					as : 'owner_user'
+				}
+			},
+			{
+				$lookup : {
+					from : 'tweets',
+					foreignField : 'origin',
+					localField : '_id',
+					as : 'comments',
+					pipeline : [
+						{
+							$lookup : {
+								from : 'users',
+								foreignField : '_id',
+								localField : 'owner',
+								as : 'owner_user'
+							}
+						},
+						{
+							$lookup : {
+								from : 'tweets',
+								foreignField : 'origin',
+								localField : '_id',
+								as : 'comments'
+							}
+						}
+					]
+				}
+			}
+		]).toArray();
+	
+		res.json(result[0]);
+	}
+	catch (e) {
+		return res.sendStatus(500);
+	}
+})
+
+app.post('/comment',auth,async(req,res)=>{
+	const user = res.locals.user;
+	const {body,origin} = req.body;
+
+	const result = await db.collection('tweets').insertOne({
+		type:'comment',
+		body,
+		origin : ObjectId(origin),
+		owner : ObjectId(user._id),
+		created : new Date(),
+		likes : []
+	})
+	if(result.insertedId){
+		const tweet = await db.collection('tweets').aggregate([
+			{
+				$match : {_id : ObjectId(result.insertedId)}
+			},
+			{
+				$lookup : {
+					from :'users',
+					foreignField : '_id',
+					localField : 'owner',
+					as : 'owner_user'
+				}
+			}
+		]).toArray();
+		const data = tweet[0];
+		data.comments = [];
+
+		return res.json(data);
+	}
+	else {
+		return res.status(500).json(result);
+	}
+})
+
 app.listen(8000, () => {
   console.log("Api running at 8000");
 });
