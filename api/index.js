@@ -350,6 +350,59 @@ app.post('/comment',auth,async(req,res)=>{
 	}
 })
 
+app.put("/users/:id/follow", auth, async (req, res) => {
+	const targetId = req.params.id;
+	const actorId = res.locals.user._id;
+
+	const targetUser = await db.collection("users").findOne({
+		_id: ObjectId(targetId),
+	});
+
+	targetUser.followers = targetUser.followers || [];
+
+	const actorUser = await db.collection("users").findOne({
+		_id: ObjectId(actorId),
+	});
+
+	actorUser.following = actorUser.following || [];
+
+	if (targetUser.followers.find(item => item.toString() === actorId)) {
+		targetUser.followers = targetUser.followers.filter(
+			uid => uid.toString() !== actorId,
+		);
+		actorUser.following = actorUser.following.filter(
+			uid => uid.toString() !== targetId,
+		);
+	} else {
+		targetUser.followers.push(ObjectId(actorId));
+		actorUser.following.push(ObjectId(targetId));
+	}
+
+	try {
+		await db.collection("users").updateOne(
+			{ _id: ObjectId(targetId) },
+			{
+				$set: { followers: targetUser.followers },
+			},
+		);
+
+		await db.collection("users").updateOne(
+			{ _id: ObjectId(actorId) },
+			{
+				$set: { following: actorUser.following },
+			},
+		);
+
+		return res.status(200).json({
+			followers: targetUser.followers,
+			following: actorUser.following,
+		});
+	} catch (e) {
+		return res.status(500).json({ msg: e.message });
+	}
+});
+
+
 app.listen(8000, () => {
   console.log("Api running at 8000");
 });

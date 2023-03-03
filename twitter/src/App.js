@@ -16,6 +16,7 @@ import {
 import {useNavigate } from "react-router-dom";
 import Add from "./Add";
 import Tweet from "./Tweet";
+import Likes from "./Likes";
 
 
 export default function App() {
@@ -67,16 +68,30 @@ export default function App() {
 			}),
 		);
 	};
+    // const toggleLike = id => {
+    //     setTweets(
+    //         tweets.map(tweet =>{
+    //             if(tweet._id === id){
+    //                 if (tweet._id === id) {
+    //                     if (tweet.likes.find(n => n === authUser._id)) {
+    //                        tweet.likes = tweet.likes.filter(n => n!== authUser._id )
+    //                     } else {
+    //                         tweet.likes = [authUser._id, ...tweet.likes];
+    //                     }
+    //                 }
+    //             }
+    //         })
+    //     )
+    // }
     const toggleLike = id => {
         setTweets(
-            tweets.map(tweet =>{
+            tweets.map(tweet => {
                 if(tweet._id === id){
-                    if (tweet._id === id) {
-                        if (tweet.likes.find(n => n === authUser._id)) {
-                           tweet.likes = tweet.likes.filter(n => n!== authUser._id )
-                        } else {
-                            tweet.likes = [authUser._id, ...tweet.likes];
-                        }
+                    if(tweet.likes.find(n=> n === authUser._d)){
+                        tweet.likes = tweet.likes.filter(n=> n!== authUser._id)
+                    }
+                    else {
+                        tweet.likes = [authUser._id , ...tweet.likes]
                     }
                 }
             })
@@ -94,6 +109,7 @@ export default function App() {
                 <Route path="/edit" element={<Edit />} />
                 <Route path="/add" element={<Add addTweet={addTweet}/>}/>
                 <Route path="tweet/:id" element={<Tweet tweets={tweets} updateTweets={updateTweets}/>} />
+                <Route path="/likes" element={<Likes/>}/>
             </Routes>
             {
                 location.pathname !== '/add' && (

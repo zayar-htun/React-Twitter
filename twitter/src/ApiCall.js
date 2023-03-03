@@ -132,3 +132,16 @@ export async function postComment(body,origin){
     const tweet  = await res.json();
     return tweet
 }
+
+export async function toggleFollower(id){
+    const token = getToken();
+    const res = await fetch(`${api}/users/${id}/follow`,{
+        method : "PUT",
+        headers : {'authorization':`Bearer ${token}`}
+    })
+    if(!res.ok){
+        return false;
+    }
+    const result = await res.json();
+    return result
+}
